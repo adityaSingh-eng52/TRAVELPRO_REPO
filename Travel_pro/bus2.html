@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelPro Advanced</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #0f4c81;
+  --secondary: #00b4d8;
+  --accent: #90e0ef;
+  --card: rgba(255,255,255,0.92);
+  --text: #111;
+  --nav: rgba(15,76,129,0.95);
+  --overlay: rgba(0,0,0,0.45);
+}
+
+body.dark {
+  --primary: #00b4d8;
+  --secondary: #0077b6;
+  --accent: #0f4c81;
+  --card: rgba(30,41,59,0.92);
+  --text: #ffffff;
+  --nav: rgba(15,23,42,0.95);
+  --overlay: rgba(0,0,0,0.65);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+  transition:background 0.4s,color 0.4s;
+}
+
+body{
+  color:var(--text);
+  background:url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957') no-repeat center center fixed;
+  background-size:cover;
+  position:relative;
+}
+
+/* DARK OVERLAY */
+body::before{
+  content:"";
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:var(--overlay);
+  z-index:-1;
+}
+
+/* NAV */
+nav{
+  position:sticky;
+  top:0;
+  background:var(--nav);
+  backdrop-filter:blur(10px);
+  padding:15px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  color:white;
+}
+
+nav ul{
+  list-style:none;
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+nav ul li{
+  cursor:pointer;
+}
+
+.toggle-btn{
+  padding:6px 14px;
+  border-radius:20px;
+  border:none;
+  cursor:pointer;
+  background:var(--secondary);
+  color:white;
+}
+
+/* HERO */
+.hero{
+  height:60vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+  color:white;
+  padding:20px;
+}
+
+.hero h2{
+  font-size:clamp(24px,5vw,42px);
+}
+
+/* SECTION */
+section{
+  padding:60px 5%;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:40px;
+  font-size:clamp(20px,3vw,30px);
+  color:#fff;
+}
+
+/* CARDS */
+.card-container{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:25px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.3);
+  transform:translateY(40px);
+  opacity:0;
+}
+
+.card.show{
+  transform:translateY(0);
+  opacity:1;
+  transition:0.6s;
+}
+
+.card:hover{
+  transform:scale(1.05);
+}
+
+.card h3{
+  color:var(--primary);
+  margin-bottom:10px;
+}
+
+/* STATUS */
+.status{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  color:white;
+  display:inline-block;
+}
+
+.on{background:green;}
+.upcoming{background:orange;}
+.done{background:red;}
+
+footer{
+  background:var(--nav);
+  color:white;
+  text-align:center;
+  padding:20px;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{
+    flex-direction:column;
+    gap:10px;
+  }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <h2>TravelPro</h2>
+  <ul>
+    <li onclick="scrollToSection('buses')">Buses</li>
+    <li onclick="scrollToSection('staff')">Staff</li>
+    <li onclick="scrollToSection('schedule')">Schedule</li>
+  </ul>
+  <button class="toggle-btn" onclick="toggleTheme()">🌙 / ☀</button>
+</nav>
+
+<div class="hero">
+  <h2>Advanced Tour & Travel Management</h2>
+  <p>Bus Tracking | Staff Documents | Smart Scheduling</p>
+</div>
+
+<section id="buses">
+  <h2 class="section-title">Bus Details</h2>
+  <div class="card-container" id="busList"></div>
+</section>
+
+<section id="staff">
+  <h2 class="section-title">Driver & Conductor Details</h2>
+  <div class="card-container" id="staffList"></div>
+</section>
+
+<section id="schedule">
+  <h2 class="section-title">Weekly Schedule</h2>
+  <div style="text-align:center;margin-bottom:20px;color:white;">
+    Current Time: <strong id="clock"></strong>
+  </div>
+  <div class="card-container" id="scheduleList"></div>
+</section>
+
+<footer>
+  © 2026 TravelPro Advanced
+</footer>
+
+<script>
+const buses=[
+ {id:1,name:"Volvo AC Sleeper",number:"RJ14 AB 1234",route:"Jaipur → Delhi",seats:45,type:"AC Sleeper",insurance:"Valid"},
+ {id:2,name:"Luxury Coach",number:"RJ14 CD 5678",route:"Delhi → Mumbai",seats:50,type:"Luxury AC",insurance:"Valid"},
+ {id:3,name:"Tourist Express",number:"RJ14 EF 7890",route:"Udaipur → Jaipur",seats:40,type:"Non-AC",insurance:"Renewal Due"}
+];
+
+const staff=[
+ {busId:1,driver:"Rajesh Kumar",license:"DL-452198",exp:"8 Years",medical:"Valid",conductor:"Amit Singh",id:"CID-9987"},
+ {busId:2,driver:"Suresh Meena",license:"DL-987654",exp:"6 Years",medical:"Valid",conductor:"Vikas Sharma",id:"CID-5544"},
+ {busId:3,driver:"Ravi Sharma",license:"DL-112233",exp:"10 Years",medical:"Valid",conductor:"Manoj Kumar",id:"CID-6677"}
+];
+
+const schedule=[
+ {busId:1,shift:"06:00 AM - 02:00 PM",status:"on"},
+ {busId:2,shift:"02:00 PM - 10:00 PM",status:"upcoming"},
+ {busId:3,shift:"10:00 PM - 06:00 AM",status:"done"}
+];
+
+function loadData(){
+ buses.forEach(bus=>{
+  busList.innerHTML+=`
+  <div class="card">
+   <h3>${bus.name}</h3>
+   <p><strong>Bus No:</strong> ${bus.number}</p>
+   <p><strong>Route:</strong> ${bus.route}</p>
+   <p><strong>Seats:</strong> ${bus.seats}</p>
+   <p><strong>Type:</strong> ${bus.type}</p>
+   <p><strong>Insurance:</strong> ${bus.insurance}</p>
+  </div>`;
+ });
+
+ staff.forEach(member=>{
+  const bus=buses.find(b=>b.id===member.busId);
+  staffList.innerHTML+=`
+  <div class="card">
+   <h3>${bus.name}</h3>
+   <p><strong>Driver:</strong> ${member.driver}</p>
+   <p><strong>License:</strong> ${member.license}</p>
+   <p><strong>Experience:</strong> ${member.exp}</p>
+   <p><strong>Medical:</strong> ${member.medical}</p>
+   <p><strong>Conductor:</strong> ${member.conductor}</p>
+   <p><strong>ID:</strong> ${member.id}</p>
+  </div>`;
+ });
+
+ schedule.forEach(item=>{
+  const bus=buses.find(b=>b.id===item.busId);
+  scheduleList.innerHTML+=`
+  <div class="card">
+   <h3>${bus.name}</h3>
+   <p><strong>Route:</strong> ${bus.route}</p>
+   <p><strong>Shift:</strong> ${item.shift}</p>
+   <span class="status ${item.status}">
+    ${item.status==="on"?"On Route":item.status==="upcoming"?"Upcoming":"Completed"}
+   </span>
+  </div>`;
+ });
+
+ animateCards();
+}
+
+function animateCards(){
+ const cards=document.querySelectorAll(".card");
+ const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+   if(entry.isIntersecting){ entry.target.classList.add("show"); }
+  });
+ },{threshold:0.2});
+ cards.forEach(card=>observer.observe(card));
+}
+
+function toggleTheme(){
+ document.body.classList.toggle("dark");
+ localStorage.setItem("theme",
+  document.body.classList.contains("dark")?"dark":"light");
+}
+
+window.onload=()=>{
+ if(localStorage.getItem("theme")==="dark"){
+  document.body.classList.add("dark");
+ }
+};
+
+function scrollToSection(id){
+ document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+function updateClock(){
+ clock.textContent=new Date().toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+
+loadData();
+updateClock();
+</script>
+
+</body>
+</html>
